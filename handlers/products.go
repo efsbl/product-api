@@ -7,17 +7,20 @@ import (
 	"github.com/efsbl/product-api/data"
 )
 
-// Products  handler for products
+// Products is a http.Handler
 type Products struct {
 	l *log.Logger
 }
 
-// NewProducts instanciates a returns a reference of the handler
+// NewProducts creates a products handler with the given logger
 func NewProducts(l *log.Logger) *Products {
 	return &Products{l}
 }
 
+// ServeHTTP is the main entry point for the handler and satisfies the
+// http.Handler interface
 func (p *Products) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+	// handle the request for a list of products
 	if r.Method == http.MethodGet {
 		p.getProducts(rw, r)
 		return
@@ -26,9 +29,11 @@ func (p *Products) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	// handle an update
 
 	// catch all
+	// if no method is satified returns an error
 	rw.WriteHeader(http.StatusMethodNotAllowed)
 }
 
+// getProducts returns the products from the data store
 func (p *Products) getProducts(rw http.ResponseWriter, r *http.Request) {
 	lp := data.GetProducts()
 	err := lp.ToJSON(rw)
