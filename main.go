@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/efsbl/product-api/handlers"
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -19,8 +20,16 @@ func main() {
 	ph := handlers.NewProducts(l)
 
 	// create a new serve mux and registers the handlers
-	sm := http.NewServeMux()
-	sm.Handle("/", ph)
+	sm := mux.NewRouter()
+
+	getRouter := sm.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/", ph.GetProducts)
+
+	putRouter := sm.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProduct)
+
+	postRouter := sm.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/", ph.AddProduct)
 
 	// create a new server
 	s := http.Server{
@@ -50,7 +59,7 @@ func main() {
 
 	// block until a signal is received
 	sig := <-c
-	log.Printf("Got signal: %s\n", sig)
+	log.Println("Got signal", sig)
 
 	// gracefully shutdown the server, waiting max 30 seconds for current operations to complete
 	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
