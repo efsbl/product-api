@@ -83,6 +83,16 @@ func UpdateProduct(id int, p *Product) error {
 	return nil
 }
 
+// DeleteProduct deletes the product from the list of products
+func DeleteProduct(id int) error {
+	_, pos, err := findProduct(id)
+	if err != nil {
+		return err
+	}
+	productList = append(productList[:pos], productList[pos+1])
+	return nil
+}
+
 // ErrProductNotFound Product not found error
 var ErrProductNotFound = fmt.Errorf("Product not found")
 
